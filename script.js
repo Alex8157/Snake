@@ -3,25 +3,80 @@ const HEIGHT = 480;
 const CENTER = 240;
 const SIDE = 10;
 const LENGTHSNAKE = 3;
+const directions = { forward: 1, right: 2, back: 3, left:4 };
 
-function play() {
-    init();
-    drawField();
-    let x = new snake;
-    x.drawSnake();
-    setInterval( () => { update( x ) }, 1000);
+function play(){
+    let game = new scene();
+    game.play();
 }
 
-function init() {
-    canvas = document.getElementById("snake");
-    canvas.width = WIDTH;
-    canvas.height = HEIGHT;
-    context = canvas.getContext('2d');
+class painting {
+    constructor() {
+        this.canvas = document.getElementById("snake");
+        this.canvas.width = WIDTH;
+        this.canvas.height = HEIGHT;
+        this.context = this.canvas.getContext('2d');
+    }
+
+    draw(color ,x, y, width, height) {
+        this.context.fillStyle = color;
+        this.context.fillRect(x, y, width, height);
+    }
+    
+    lose() {
+        this.draw("#055", 0, 0, WIDTH, HEIGHT)
+        this.context.fillStyle = "#cfcfcf";
+        this.context.font = "100px Arial";
+        this.context.fillText("GAME", WIDTH/10, HEIGHT/3);
+        this.context.fillText("OVER", WIDTH/10, HEIGHT*2/3);
+    }
 }
 
-function drawField() {
-    context.fillStyle = "#cfcfcf";
-    context.fillRect(0, 0, WIDTH, HEIGHT);
+class scene {
+    constructor() {
+        this.picture = new painting();
+        this.serpent = new snake();
+    }
+    play() {
+        this.startListener(this.serpent);
+        this.interval = setInterval( () => { 
+            if (this.serpent.cellsNumber != 0) {
+                this.update()
+            } 
+            else {
+                clearInterval(this.interval);
+                this.picture.lose() 
+            } },
+        50);
+    }
+
+    startListener(serpent) {
+        document.addEventListener("keyup", function (event) {
+            switch (event.key) {
+                case "ArrowRight":
+                    serpent.changeDirection(1);
+                    break;
+                case "ArrowLeft":
+                    serpent.changeDirection(-1);
+                    break;
+                default:
+                    break;
+            }
+        })
+    }
+
+    update() {
+        this.picture.draw("#cfcfcf", 0, 0, WIDTH, HEIGHT) // рисуем игровое поле
+        this.serpent.move();
+        this.drawSnake(this.serpent);
+    }
+
+    drawSnake() {
+        for (let i = 0; i < this.serpent.cellsNumber; i++) {
+            let cellParams = this.serpent.cells[i].getInfo()
+            this.picture.draw(cellParams.color, cellParams.x, cellParams.y, cellParams.width, cellParams.height)
+        }
+    }
 }
 
 class square {
@@ -33,20 +88,25 @@ class square {
         this.height = height;
     }
 
-    drawSquare() {
-        context.fillStyle = this.color;
-        context.fillRect(this.x, this.y, this.width, this.height);
+    getInfo() {
+        return {
+            color: this.color,
+            x: this.x,
+            y: this.y,
+            width: this.width,
+            height: this.height
+        }
     }
 
-    returnCoordinatesX() {
+    getCoordinatesX() {
         return this.x
     }
 
-    returnCoordinatesY() {
+    getCoordinatesY() {
         return this.y
     }
 
-    coordinatesChange(x, y) {
+    changeCoordinates(x, y) {
         this.x = x;
         this.y = y;
     }
@@ -55,77 +115,61 @@ class square {
 class snake {
     constructor() {
         this.cellsNumber = LENGTHSNAKE;
-        this.cells = []
+        this.cells = [];
         for (let i = 0; i < LENGTHSNAKE; i++) {
             this.cells.push(new square("#000", CENTER,CENTER+i*SIDE,SIDE,SIDE))
         }
-        const directions = { forward: 1, right: 2, back: 3, left:4 };
         this.direction = directions.forward;
+    }
+    
+    delete() {
+        for (let i = 0; i < LENGTHSNAKE; i++) {
+            this.cells.pop()
+        }
+        this.cellsNumber = 0
     }
 
     changeDirection(newDirection) {
-        newDirection = this.checkDirection(newDirection);
-        this.direction = newDirection;
+            this.direction = this.direction + newDirection;
+            if((this.direction) > directions.left ){
+                this.direction = directions.forward;
+            }
+            else {
+                if(this.direction < directions.forward ){
+                    this.direction = directions.left;
+                }
+            }
     }
 
-    checkDirection(newDirection) {
-        if(Math.abs(this.direction - newDirection) == 2)
-            newDirection = this.direction;
-        return newDirection;
-    }
-
-    drawSnake() {
-        for (let i = 0; i < this.cellsNumber; i++) {
-            this.cells[i].drawSquare()
-        }
-    }
-
-    paintTheTail(){
-        context.fillStyle = "#cfcfcf";
-        context.fillRect(this.cells[this.cellsNumber - 1].returnCoordinatesX(), this.cells[this.cellsNumber - 1].returnCoordinatesY(),10,10);
-    }
-
-    motion() {
+    travel() {
         for (let i = this.cellsNumber - 1; i > 0; i--) {
-            this.cells[i].coordinatesChange(this.cells[i-1].returnCoordinatesX(),this.cells[i-1].returnCoordinatesY())
+            this.cells[i].changeCoordinates(this.cells[i-1].getCoordinatesX(),this.cells[i-1].getCoordinatesY())
         }
         switch (this.direction) {
-            case 1:
-                this.cells[0].coordinatesChange(this.cells[0].returnCoordinatesX(), this.cells[0].returnCoordinatesY() - 10)
+            case directions.forward:
+                this.cells[0].changeCoordinates(this.cells[0].getCoordinatesX(), this.cells[0].getCoordinatesY() - 10)
                 break;
-            case 2:
-                this.cells[0].coordinatesChange(this.cells[0].returnCoordinatesX() + 10, this.cells[0].returnCoordinatesY())
+            case directions.right:
+                this.cells[0].changeCoordinates(this.cells[0].getCoordinatesX() + 10, this.cells[0].getCoordinatesY())
                 break;
-            case 3:
-                this.cells[0].coordinatesChange(this.cells[0].returnCoordinatesX(), this.cells[0].returnCoordinatesY() + 10)
+            case directions.back:
+                this.cells[0].changeCoordinates(this.cells[0].getCoordinatesX(), this.cells[0].getCoordinatesY() + 10)
                 break;
-            case 4:
-                this.cells[0].coordinatesChange(this.cells[0].returnCoordinatesX() - 10, this.cells[0].returnCoordinatesY())
+            case directions.left:
+                this.cells[0].changeCoordinates(this.cells[0].getCoordinatesX() - 10, this.cells[0].getCoordinatesY())
                 break;
         }
     }
-}
 
-function update(snake) {
-    snake.paintTheTail();
-    snake.motion();
-    snake.drawSnake()
-    document.addEventListener("keydown", function (event) {
-        switch (event.key) {
-            case "ArrowUp":
-                snake.changeDirection(1);
-                break;
-            case "ArrowRight":
-                snake.changeDirection(2);
-                break;
-            case "ArrowDown":
-                snake.changeDirection(3);
-                break;
-            case "ArrowLeft":
-                snake.changeDirection(4);
-                break;
-            default:
-                break;
+    move() {
+        this.travel();
+        this.goOut();
+    }
+
+    goOut() {
+        if (this.cells[0].getCoordinatesX() < 0 || this.cells[0].getCoordinatesY() < 0 ||
+            this.cells[0].getCoordinatesX() == WIDTH || this.cells[0].getCoordinatesY() == HEIGHT) {
+                this.delete()
         }
-    })
+    }
 }
