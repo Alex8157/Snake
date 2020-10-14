@@ -23,7 +23,7 @@ class painting {
         this.context.fillRect(x, y, width, height);
     }
     
-    lose() {
+    displayOfInformationAboutTheLoss() {
         this.draw("#055", 0, 0, WIDTH, HEIGHT)
         this.context.fillStyle = "#cfcfcf";
         this.context.font = "100px Arial";
@@ -45,7 +45,7 @@ class scene {
             } 
             else {
                 clearInterval(this.interval);
-                this.picture.lose() 
+                this.picture.displayOfInformationAboutTheLoss() 
             } },
         100);
     }
