@@ -114,6 +114,7 @@ class square {
 
 class snake {
     constructor() {
+        this.moveCounter = 0;
         this.cellsNumber = LENGTHSNAKE;
         this.cells = [];
         for (let i = 0; i < LENGTHSNAKE; i++) {
@@ -130,16 +131,19 @@ class snake {
     }
 
     changeDirection(newDirection) {
-            this.direction = this.direction + newDirection;
-            if((this.direction) > directions.left ){
-                this.direction = directions.forward;
+    if (this.moveCounter == 0) {
+        this.moveCounter++;
+        this.direction = this.direction + newDirection;
+        if((this.direction) > directions.left ){
+            this.direction = directions.forward;
+        }
+        else {
+            if(this.direction < directions.forward ){
+                this.direction = directions.left;
             }
-            else {
-                if(this.direction < directions.forward ){
-                    this.direction = directions.left;
-                }
-            }
+        }
     }
+}
 
     travel() {
         for (let i = this.cellsNumber - 1; i > 0; i--) {
@@ -162,6 +166,7 @@ class snake {
     }
 
     move() {
+        this.moveCounter = 0;
         this.travel();
         this.goOut();
     }
