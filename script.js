@@ -47,7 +47,7 @@ class scene {
                 clearInterval(this.interval);
                 this.picture.lose() 
             } },
-        50);
+        100);
     }
 
     startListener(serpent) {
@@ -168,13 +168,27 @@ class snake {
     move() {
         this.moveCounter = 0;
         this.travel();
-        this.goOut();
+        if (this.checkIntersection() != true || this.goOut() != true) {
+            this.delete()
+        }
     }
 
     goOut() {
         if (this.cells[0].getCoordinatesX() < 0 || this.cells[0].getCoordinatesY() < 0 ||
             this.cells[0].getCoordinatesX() == WIDTH || this.cells[0].getCoordinatesY() == HEIGHT) {
-                this.delete()
+                return false;
         }
+        else
+            return true;
+    }
+
+    checkIntersection() {
+        for (let i = 2; i < this.cellsNumber; i++) {
+            if (this.cells[0].getCoordinatesX()== this.cells[i].getCoordinatesX() &&
+                 this.cells[0].getCoordinatesY() == this.cells[i].getCoordinatesY()) { 
+                    return false;
+            }
+        }
+        return true;
     }
 }
