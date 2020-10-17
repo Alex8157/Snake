@@ -1,6 +1,6 @@
 const WIDTH = 480;
 const HEIGHT = 480;
-const CENTER = 240;
+const CENTER = (WIDTH + HEIGHT)/4;
 const SIDE = 10;
 const LENGTHSNAKE = 3;
 const directions = { forward: 1, right: 2, back: 3, left:4 };
@@ -36,7 +36,9 @@ class scene {
     constructor() {
         this.picture = new painting();
         this.serpent = new snake();
+        this.makeFood()
     }
+
     play() {
         this.startListener(this.serpent);
         this.interval = setInterval( () => { 
@@ -66,7 +68,9 @@ class scene {
     }
 
     update() {
-        this.picture.draw("#cfcfcf", 0, 0, WIDTH, HEIGHT) // рисуем игровое поле
+        this.checkFood();
+        this.picture.draw("#cfcfcf", 0, 0, WIDTH, HEIGHT); // рисуем игровое поле
+        this.picture.draw(this.food.getInfo().color,this.food.getInfo().x,this.food.getInfo().y,this.food.getInfo().width,this.food.getInfo().height);
         this.serpent.move();
         this.drawSnake(this.serpent);
     }
@@ -76,6 +80,18 @@ class scene {
             let cellParams = this.serpent.cells[i].getInfo()
             this.picture.draw(cellParams.color, cellParams.x, cellParams.y, cellParams.width, cellParams.height)
         }
+    }
+
+    checkFood() {
+        if (this.serpent.getHeadCoordinates().x == this.food.x && this.serpent.getHeadCoordinates().y == this.food.y) {
+            this.serpent.eat();
+            this.makeFood();
+        }
+    }
+
+    makeFood() {
+        this.food = new square("#000", Math.round((Math.random() * (WIDTH - 0) + 0)/SIDE)*SIDE, 
+        Math.round((Math.random() * (HEIGHT - 0) + 0)/SIDE)*SIDE, SIDE, SIDE)
     }
 }
 
@@ -117,10 +133,15 @@ class snake {
         this.moveCounter = 0;
         this.cellsNumber = LENGTHSNAKE;
         this.cells = [];
+        this.hunger = true;
         for (let i = 0; i < LENGTHSNAKE; i++) {
-            this.cells.push(new square("#000", CENTER,CENTER+i*SIDE,SIDE,SIDE))
+            this.cells.push(new square("#000", Math.floor(CENTER/SIDE)*SIDE,Math.floor(CENTER/SIDE)*SIDE+i*SIDE,SIDE,SIDE))
         }
         this.direction = directions.forward;
+    }
+
+    getHeadCoordinates() {
+        return {x:this.cells[0].getCoordinatesX(),y:this.cells[0].getCoordinatesY()}
     }
     
     delete() {
@@ -146,21 +167,31 @@ class snake {
 }
 
     travel() {
+        this.lastCell = {x: this.cells[this.cellsNumber - 1].getCoordinatesX(), y:this.cells[this.cellsNumber - 1].getCoordinatesY()}
         for (let i = this.cellsNumber - 1; i > 0; i--) {
             this.cells[i].changeCoordinates(this.cells[i-1].getCoordinatesX(),this.cells[i-1].getCoordinatesY())
         }
+        this.headMovement();
+        if (this.hunger == false) {
+            this.cellsNumber++;
+            this.cells.push(new square("#000", this.lastCell.x,this.lastCell.y,SIDE,SIDE));
+            this.hunger = true;
+        }
+    }
+
+    headMovement() {
         switch (this.direction) {
             case directions.forward:
-                this.cells[0].changeCoordinates(this.cells[0].getCoordinatesX(), this.cells[0].getCoordinatesY() - 10)
+                this.cells[0].changeCoordinates(this.cells[0].getCoordinatesX(), this.cells[0].getCoordinatesY() - SIDE)
                 break;
             case directions.right:
-                this.cells[0].changeCoordinates(this.cells[0].getCoordinatesX() + 10, this.cells[0].getCoordinatesY())
+                this.cells[0].changeCoordinates(this.cells[0].getCoordinatesX() + SIDE, this.cells[0].getCoordinatesY())
                 break;
             case directions.back:
-                this.cells[0].changeCoordinates(this.cells[0].getCoordinatesX(), this.cells[0].getCoordinatesY() + 10)
+                this.cells[0].changeCoordinates(this.cells[0].getCoordinatesX(), this.cells[0].getCoordinatesY() + SIDE)
                 break;
             case directions.left:
-                this.cells[0].changeCoordinates(this.cells[0].getCoordinatesX() - 10, this.cells[0].getCoordinatesY())
+                this.cells[0].changeCoordinates(this.cells[0].getCoordinatesX() - SIDE, this.cells[0].getCoordinatesY())
                 break;
         }
     }
@@ -175,7 +206,7 @@ class snake {
 
     goOut() {
         if (this.cells[0].getCoordinatesX() < 0 || this.cells[0].getCoordinatesY() < 0 ||
-            this.cells[0].getCoordinatesX() == WIDTH || this.cells[0].getCoordinatesY() == HEIGHT) {
+            this.cells[0].getCoordinatesX() >= WIDTH || this.cells[0].getCoordinatesY() >= HEIGHT) {
                 return false;
         }
         else
@@ -190,5 +221,9 @@ class snake {
             }
         }
         return true;
+    }
+
+    eat(){
+        this.hunger = false;
     }
 }
