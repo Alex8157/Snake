@@ -1,8 +1,9 @@
-const WIDTH = 480;
-const HEIGHT = 480;
+const SIDE = 30;
+const WIDTH = SIDE*20;
+const HEIGHT = SIDE*20;
 const CENTER = (WIDTH + HEIGHT)/4;
-const SIDE = 10;
 const LENGTHSNAKE = 3;
+const WIDTHLINE = 2;
 const directions = { forward: 1, right: 2, back: 3, left:4 };
 
 function play(){
@@ -13,8 +14,8 @@ function play(){
 class painting {
     constructor() {
         this.canvas = document.getElementById("snake");
-        this.canvas.width = WIDTH;
-        this.canvas.height = HEIGHT;
+        this.canvas.width = WIDTH+WIDTHLINE;
+        this.canvas.height = HEIGHT+WIDTHLINE;
         this.context = this.canvas.getContext('2d');
     }
 
@@ -29,6 +30,18 @@ class painting {
         this.context.font = "100px Arial";
         this.context.fillText("GAME", WIDTH/10, HEIGHT/3);
         this.context.fillText("OVER", WIDTH/10, HEIGHT*2/3);
+    }
+
+    playingField() {
+        this.draw("#cfcfcf", 0, 0, WIDTH+WIDTHLINE, HEIGHT+WIDTHLINE);
+        this.drawGrid()
+    }
+
+    drawGrid() {
+        for (let i = 0; i < WIDTH/SIDE+WIDTHLINE; i++) {
+            this.draw("#727573", i*SIDE, 0, WIDTHLINE, HEIGHT)
+            this.draw("#727573", 0, i*SIDE, WIDTH, WIDTHLINE)
+        }
     }
 }
 
@@ -49,7 +62,7 @@ class scene {
                 clearInterval(this.interval);
                 this.picture.displayOfInformationAboutTheLoss() 
             } },
-        100);
+        250);
     }
 
     startListener(serpent) {
@@ -69,8 +82,8 @@ class scene {
 
     update() {
         this.checkFood();
-        this.picture.draw("#cfcfcf", 0, 0, WIDTH, HEIGHT); // рисуем игровое поле
-        this.picture.draw(this.food.getInfo().color,this.food.getInfo().x,this.food.getInfo().y,this.food.getInfo().width,this.food.getInfo().height);
+        this.picture.playingField(); // рисуем игровое поле
+        this.drawFood();
         this.serpent.move();
         this.drawSnake(this.serpent);
     }
@@ -78,7 +91,12 @@ class scene {
     drawSnake() {
         for (let i = 0; i < this.serpent.cellsNumber; i++) {
             let cellParams = this.serpent.cells[i].getInfo()
-            this.picture.draw(cellParams.color, cellParams.x, cellParams.y, cellParams.width, cellParams.height)
+            this.picture.draw(
+                cellParams.color,
+                cellParams.x+WIDTHLINE,
+                cellParams.y+WIDTHLINE,
+                cellParams.width-WIDTHLINE,
+                cellParams.height-WIDTHLINE)
         }
     }
 
@@ -90,8 +108,18 @@ class scene {
     }
 
     makeFood() {
-        this.food = new square("#000", Math.round((Math.random() * (WIDTH - 0) + 0)/SIDE)*SIDE, 
-        Math.round((Math.random() * (HEIGHT - 0) + 0)/SIDE)*SIDE, SIDE, SIDE)
+        this.food = new square("#f00", Math.floor((Math.random() * (WIDTH - 0) + 0)/SIDE)*SIDE, 
+        Math.floor((Math.random() * (HEIGHT - 0) + 0)/SIDE)*SIDE, SIDE, SIDE)
+    }
+
+    drawFood() {
+        this.picture.draw(
+            this.food.getInfo().color,
+            this.food.getInfo().x+WIDTHLINE,
+            this.food.getInfo().y+WIDTHLINE,
+            this.food.getInfo().width-WIDTHLINE,
+            this.food.getInfo().height-WIDTHLINE
+        );
     }
 }
 
