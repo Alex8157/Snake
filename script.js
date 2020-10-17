@@ -36,8 +36,7 @@ class scene {
     constructor() {
         this.picture = new painting();
         this.serpent = new snake();
-        this.food = new square("#000", Math.round((Math.random() * (WIDTH - 0) + 0)/SIDE)*SIDE, 
-        Math.round((Math.random() * (HEIGHT - 0) + 0)/SIDE)*SIDE, SIDE, SIDE);
+        this.makeFood()
     }
 
     play() {
@@ -86,9 +85,13 @@ class scene {
     checkFood() {
         if (this.serpent.getHeadCoordinates().x == this.food.x && this.serpent.getHeadCoordinates().y == this.food.y) {
             this.serpent.eat();
-            this.food = new square("#000", Math.round((Math.random() * (WIDTH - 0) + 0)/SIDE)*SIDE, 
-            Math.round((Math.random() * (HEIGHT - 0) + 0)/SIDE)*SIDE, SIDE, SIDE);
+            this.makeFood();
         }
+    }
+
+    makeFood() {
+        this.food = new square("#000", Math.round((Math.random() * (WIDTH - 0) + 0)/SIDE)*SIDE, 
+        Math.round((Math.random() * (HEIGHT - 0) + 0)/SIDE)*SIDE, SIDE, SIDE)
     }
 }
 
@@ -160,9 +163,7 @@ class snake {
     }
 
     travel() {
-        if (this.hunger == false) {
-            this.lastCell = {x: this.cells[this.cellsNumber - 1].getCoordinatesX(), y:this.cells[this.cellsNumber - 1].getCoordinatesY()}
-        }
+        this.lastCell = {x: this.cells[this.cellsNumber - 1].getCoordinatesX(), y:this.cells[this.cellsNumber - 1].getCoordinatesY()}
         for (let i = this.cellsNumber - 1; i > 0; i--) {
             this.cells[i].changeCoordinates(this.cells[i-1].getCoordinatesX(),this.cells[i-1].getCoordinatesY())
         }
