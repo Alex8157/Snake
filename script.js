@@ -23,7 +23,7 @@ class painting {
         this.context.fillRect(x, y, width, height);
     }
     
-    lose() {
+    displayOfInformationAboutTheLoss() {
         this.draw("#055", 0, 0, WIDTH, HEIGHT)
         this.context.fillStyle = "#cfcfcf";
         this.context.font = "100px Arial";
@@ -47,9 +47,9 @@ class scene {
             } 
             else {
                 clearInterval(this.interval);
-                this.picture.lose() 
+                this.picture.displayOfInformationAboutTheLoss() 
             } },
-        500);
+        100);
     }
 
     startListener(serpent) {
@@ -130,6 +130,7 @@ class square {
 
 class snake {
     constructor() {
+        this.moveCounter = 0;
         this.cellsNumber = LENGTHSNAKE;
         this.cells = [];
         this.hunger = true;
@@ -151,16 +152,19 @@ class snake {
     }
 
     changeDirection(newDirection) {
-            this.direction = this.direction + newDirection;
-            if((this.direction) > directions.left ){
-                this.direction = directions.forward;
+    if (this.moveCounter == 0) {
+        this.moveCounter++;
+        this.direction = this.direction + newDirection;
+        if((this.direction) > directions.left ){
+            this.direction = directions.forward;
+        }
+        else {
+            if(this.direction < directions.forward ){
+                this.direction = directions.left;
             }
-            else {
-                if(this.direction < directions.forward ){
-                    this.direction = directions.left;
-                }
-            }
+        }
     }
+}
 
     travel() {
         this.lastCell = {x: this.cells[this.cellsNumber - 1].getCoordinatesX(), y:this.cells[this.cellsNumber - 1].getCoordinatesY()}
@@ -193,15 +197,30 @@ class snake {
     }
 
     move() {
+        this.moveCounter = 0;
         this.travel();
-        this.goOut();
+        if (this.checkIntersection() != true || this.goOut() != true) {
+            this.delete()
+        }
     }
 
     goOut() {
         if (this.cells[0].getCoordinatesX() < 0 || this.cells[0].getCoordinatesY() < 0 ||
-            this.cells[0].getCoordinatesX() > WIDTH || this.cells[0].getCoordinatesY() > HEIGHT) {
-                this.delete()
+            this.cells[0].getCoordinatesX() >= WIDTH || this.cells[0].getCoordinatesY() >= HEIGHT) {
+                return false;
         }
+        else
+            return true;
+    }
+
+    checkIntersection() {
+        for (let i = 2; i < this.cellsNumber; i++) {
+            if (this.cells[0].getCoordinatesX()== this.cells[i].getCoordinatesX() &&
+                 this.cells[0].getCoordinatesY() == this.cells[i].getCoordinatesY()) { 
+                    return false;
+            }
+        }
+        return true;
     }
 
     eat(){
