@@ -24,24 +24,10 @@ class painting {
         this.context.fillRect(x, y, width, height);
     }
     
-    displayOfInformationAboutTheLoss() {
-        this.draw("#055", 0, 0, WIDTH, HEIGHT)
-        this.context.fillStyle = "#cfcfcf";
-        this.context.font = "100px Arial";
-        this.context.fillText("GAME", WIDTH/10, HEIGHT/3);
-        this.context.fillText("OVER", WIDTH/10, HEIGHT*2/3);
-    }
-
-    playingField() {
-        this.draw("#cfcfcf", 0, 0, WIDTH+WIDTHLINE, HEIGHT+WIDTHLINE);
-        this.drawGrid()
-    }
-
-    drawGrid() {
-        for (let i = 0; i < WIDTH/SIDE+WIDTHLINE; i++) {
-            this.draw("#727573", i*SIDE, 0, WIDTHLINE, HEIGHT)
-            this.draw("#727573", 0, i*SIDE, WIDTH, WIDTHLINE)
-        }
+    displayOfInformation(text, font, color, x, y) {
+        this.context.fillStyle = color;
+        this.context.font = font;
+        this.context.fillText(text, x, y);
     }
 }
 
@@ -60,7 +46,9 @@ class scene {
             } 
             else {
                 clearInterval(this.interval);
-                this.picture.displayOfInformationAboutTheLoss() 
+                this.playingField();
+                this.picture.displayOfInformation("GAME",`${HEIGHT/5}px Arial`,"#222", WIDTH/5, HEIGHT/3);
+                this.picture.displayOfInformation("OVER",`${HEIGHT/5}px Arial`,"#222", WIDTH/5, HEIGHT*2/3);
             } },
         250);
     }
@@ -74,23 +62,33 @@ class scene {
                 case "ArrowLeft":
                     serpent.changeDirection(-1);
                     break;
-                default:
-                    break;
             }
         })
     }
 
     update() {
-        this.checkFood();
-        this.picture.playingField(); // рисуем игровое поле
-        this.drawFood();
+        this.playingField(); // рисуем игровое поле
         this.serpent.move();
         this.drawSnake(this.serpent);
+        this.checkFood();
+        this.drawFood();
+    }
+
+    playingField() {
+        this.picture.draw("#cfcfcf", 0, 0, WIDTH+WIDTHLINE, HEIGHT+WIDTHLINE);
+        this.drawGrid()
+    }
+
+    drawGrid() {
+        for (let i = 0; i < WIDTH/SIDE+WIDTHLINE; i++) {
+            this.picture.draw("#727573", i*SIDE, 0, WIDTHLINE, HEIGHT)
+            this.picture.draw("#727573", 0, i*SIDE, WIDTH, WIDTHLINE)
+        }
     }
 
     drawSnake() {
-        for (let i = 0; i < this.serpent.cellsNumber; i++) {
-            let cellParams = this.serpent.cells[i].getInfo()
+        for (const value of this.serpent.cells) {
+            let cellParams = value.getInfo()
             this.picture.draw(
                 cellParams.color,
                 cellParams.x+WIDTHLINE,
@@ -102,24 +100,19 @@ class scene {
 
     checkFood() {
         if (this.serpent.getHeadCoordinates().x == this.food.x && this.serpent.getHeadCoordinates().y == this.food.y) {
-            this.serpent.eat();
+            this.serpent.hunger = false;
             this.makeFood();
         }
     }
 
     makeFood() {
-        this.food = new square("#f00", Math.floor((Math.random() * (WIDTH - 0) + 0)/SIDE)*SIDE, 
-        Math.floor((Math.random() * (HEIGHT - 0) + 0)/SIDE)*SIDE, SIDE, SIDE)
+        this.food = new square("#f00", Math.floor((Math.random() * WIDTH )/SIDE)*SIDE, 
+            Math.floor((Math.random() * HEIGHT)/SIDE)*SIDE, SIDE, SIDE)
     }
-
+    
     drawFood() {
-        this.picture.draw(
-            this.food.getInfo().color,
-            this.food.getInfo().x+WIDTHLINE,
-            this.food.getInfo().y+WIDTHLINE,
-            this.food.getInfo().width-WIDTHLINE,
-            this.food.getInfo().height-WIDTHLINE
-        );
+        let meal = this.food.getInfo();
+        this.picture.draw(meal.color, meal.x+WIDTHLINE, meal.y+WIDTHLINE, meal.width-WIDTHLINE, meal.height-WIDTHLINE);
     }
 }
 
@@ -142,14 +135,6 @@ class square {
         }
     }
 
-    getCoordinatesX() {
-        return this.x
-    }
-
-    getCoordinatesY() {
-        return this.y
-    }
-
     changeCoordinates(x, y) {
         this.x = x;
         this.y = y;
@@ -169,9 +154,9 @@ class snake {
     }
 
     getHeadCoordinates() {
-        return {x:this.cells[0].getCoordinatesX(),y:this.cells[0].getCoordinatesY()}
-    }
-    
+        return {x:this.cells[0].x,y:this.cells[0].y}
+    }    
+
     delete() {
         for (let i = 0; i < LENGTHSNAKE; i++) {
             this.cells.pop()
@@ -195,9 +180,9 @@ class snake {
 }
 
     travel() {
-        this.lastCell = {x: this.cells[this.cellsNumber - 1].getCoordinatesX(), y:this.cells[this.cellsNumber - 1].getCoordinatesY()}
+        this.lastCell = {x: this.cells[this.cellsNumber - 1].x, y:this.cells[this.cellsNumber - 1].y}
         for (let i = this.cellsNumber - 1; i > 0; i--) {
-            this.cells[i].changeCoordinates(this.cells[i-1].getCoordinatesX(),this.cells[i-1].getCoordinatesY())
+            this.cells[i].changeCoordinates(this.cells[i-1].x,this.cells[i-1].y)
         }
         this.headMovement();
         if (this.hunger == false) {
@@ -210,16 +195,16 @@ class snake {
     headMovement() {
         switch (this.direction) {
             case directions.forward:
-                this.cells[0].changeCoordinates(this.cells[0].getCoordinatesX(), this.cells[0].getCoordinatesY() - SIDE)
+                this.cells[0].changeCoordinates(this.cells[0].x, this.cells[0].y - SIDE)
                 break;
             case directions.right:
-                this.cells[0].changeCoordinates(this.cells[0].getCoordinatesX() + SIDE, this.cells[0].getCoordinatesY())
+                this.cells[0].changeCoordinates(this.cells[0].x + SIDE, this.cells[0].y)
                 break;
             case directions.back:
-                this.cells[0].changeCoordinates(this.cells[0].getCoordinatesX(), this.cells[0].getCoordinatesY() + SIDE)
+                this.cells[0].changeCoordinates(this.cells[0].x, this.cells[0].y + SIDE)
                 break;
             case directions.left:
-                this.cells[0].changeCoordinates(this.cells[0].getCoordinatesX() - SIDE, this.cells[0].getCoordinatesY())
+                this.cells[0].changeCoordinates(this.cells[0].x - SIDE, this.cells[0].y)
                 break;
         }
     }
@@ -233,8 +218,8 @@ class snake {
     }
 
     goOut() {
-        if (this.cells[0].getCoordinatesX() < 0 || this.cells[0].getCoordinatesY() < 0 ||
-            this.cells[0].getCoordinatesX() >= WIDTH || this.cells[0].getCoordinatesY() >= HEIGHT) {
+        if (this.cells[0].x < 0 || this.cells[0].y < 0 ||
+            this.cells[0].x >= WIDTH || this.cells[0].y >= HEIGHT) {
                 return false;
         }
         else
@@ -243,15 +228,11 @@ class snake {
 
     checkIntersection() {
         for (let i = 2; i < this.cellsNumber; i++) {
-            if (this.cells[0].getCoordinatesX()== this.cells[i].getCoordinatesX() &&
-                 this.cells[0].getCoordinatesY() == this.cells[i].getCoordinatesY()) { 
+            if (this.cells[0].x == this.cells[i].x &&
+                 this.cells[0].y == this.cells[i].y) { 
                     return false;
             }
         }
         return true;
-    }
-
-    eat(){
-        this.hunger = false;
     }
 }
