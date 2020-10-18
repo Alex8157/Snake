@@ -88,13 +88,12 @@ class scene {
 
     drawSnake() {
         for (const value of this.serpent.cells) {
-            let cellParams = value.getInfo()
             this.picture.draw(
-                cellParams.color,
-                cellParams.x+WIDTHLINE,
-                cellParams.y+WIDTHLINE,
-                cellParams.width-WIDTHLINE,
-                cellParams.height-WIDTHLINE)
+                value.color,
+                value.x+WIDTHLINE,
+                value.y+WIDTHLINE,
+                value.width-WIDTHLINE,
+                value.height-WIDTHLINE)
         }
     }
 
@@ -111,8 +110,7 @@ class scene {
     }
     
     drawFood() {
-        let meal = this.food.getInfo();
-        this.picture.draw(meal.color, meal.x+WIDTHLINE, meal.y+WIDTHLINE, meal.width-WIDTHLINE, meal.height-WIDTHLINE);
+        this.picture.draw(this.food.color, this.food.x+WIDTHLINE, this.food.y+WIDTHLINE, this.food.width-WIDTHLINE, this.food.height-WIDTHLINE);
     }
 }
 
@@ -123,16 +121,6 @@ class square {
         this.y = y;
         this.width = width;
         this.height = height;
-    }
-
-    getInfo() {
-        return {
-            color: this.color,
-            x: this.x,
-            y: this.y,
-            width: this.width,
-            height: this.height
-        }
     }
 
     changeCoordinates(x, y) {
