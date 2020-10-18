@@ -39,7 +39,8 @@ class scene {
     }
 
     play() {
-        this.startListener(this.serpent);
+        let that = this
+        this.startListener();
         this.interval = setInterval( () => { 
             if (this.serpent.cellsNumber != 0) {
                 this.update()
@@ -53,14 +54,15 @@ class scene {
         250);
     }
 
-    startListener(serpent) {
+    startListener() {
+        let that = this
         document.addEventListener("keyup", function (event) {
             switch (event.key) {
                 case "ArrowRight":
-                    serpent.changeDirection(1);
+                    that.serpent.changeDirection(1);
                     break;
                 case "ArrowLeft":
-                    serpent.changeDirection(-1);
+                    that.serpent.changeDirection(-1);
                     break;
             }
         })
