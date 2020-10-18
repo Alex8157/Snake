@@ -39,7 +39,6 @@ class scene {
     }
 
     play() {
-        let that = this
         this.startListener();
         this.interval = setInterval( () => { 
             if (this.serpent.cellsNumber != 0) {
