@@ -116,10 +116,15 @@ class scene {
     }
 
     checkSnake() {
-        if (this.serpent.getHeadCoordinates().x < 0 || this.serpent.getHeadCoordinates().y < 0 ||
-            this.serpent.getHeadCoordinates().x >= WIDTH || this.serpent.getHeadCoordinates().y >= HEIGHT) {
-                this.serpent.delete()
-        }
+        if (this.serpent.getHeadCoordinates().x < 0) {
+            this.serpent.cells[0].x = WIDTH - SIDE;
+        } else if (this.serpent.getHeadCoordinates().y < 0) {
+                this.serpent.cells[0].y = WIDTH - SIDE;
+            } else if (this.serpent.getHeadCoordinates().x >= WIDTH) {
+                    this.serpent.cells[0].x = 0;
+                }else if (this.serpent.getHeadCoordinates().y >= HEIGHT) {
+                        this.serpent.cells[0].y = 0;
+                    }
     }
 }
 
