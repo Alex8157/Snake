@@ -96,6 +96,7 @@ class scene {
     update() {
         this.playingField(); // рисуем игровое поле
         this.serpent.move();
+        this.checkSnake();
         this.drawSnake();
         this.checkFood();
         this.drawFood();
