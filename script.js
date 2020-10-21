@@ -1,21 +1,20 @@
 const SIDE = 30;
 const WIDTH = SIDE*20;
 const HEIGHT = SIDE*20;
+const HEIGHTINTERFACE = 70;
 const CENTER = (WIDTH + HEIGHT)/4;
 const LENGTHSNAKE = 3;
 const WIDTHLINE = 2;
+const POINT = 100;
+const CALLTIME = 250;
+const POINTREDUCTIONFACTOR = 0.98;
 const directions = { forward: 1, right: 2, back: 3, left:4 };
-
-function play(){
-    let game = new scene();
-    game.play();
-}
 
 class painting {
     constructor() {
         this.canvas = document.getElementById("snake");
         this.canvas.width = WIDTH+WIDTHLINE;
-        this.canvas.height = HEIGHT+WIDTHLINE;
+        this.canvas.height = HEIGHT+WIDTHLINE + HEIGHTINTERFACE;
         this.context = this.canvas.getContext('2d');
     }
 
@@ -35,10 +34,33 @@ class scene {
     constructor() {
         this.picture = new painting();
         this.serpent = new snake();
+        this.totalScore = 0;
+        this.score = 0;
         this.makeFood()
     }
 
+    clear() {
+        clearInterval(this.interval)
+        this.serpent = new snake();
+        this.makeFood();
+        this.totalScore = 0;
+    }
+
+    drawInterface() {
+        if (this.serpent.cellsNumber != 0) {
+            this.length = this.serpent.cellsNumber
+        }
+        this.picture.draw("#727573", 0, HEIGHT+WIDTHLINE, WIDTH + WIDTHLINE, HEIGHT + WIDTHLINE + HEIGHTINTERFACE);
+        this.picture.draw("#cfcfcf", WIDTHLINE, HEIGHT+WIDTHLINE, WIDTHLINE, HEIGHTINTERFACE-WIDTHLINE)
+        this.picture.draw("#cfcfcf", WIDTH-WIDTHLINE, HEIGHT+WIDTHLINE, WIDTHLINE, HEIGHTINTERFACE-WIDTHLINE)
+        this.picture.draw("#cfcfcf", WIDTHLINE, HEIGHT+WIDTHLINE, WIDTH-WIDTHLINE, WIDTHLINE)
+        this.picture.draw("#cfcfcf", WIDTHLINE, HEIGHT+HEIGHTINTERFACE-WIDTHLINE, WIDTH-WIDTHLINE, WIDTHLINE)
+        this.picture.displayOfInformation(`SCORE : ${Math.round(this.totalScore)}`,`${HEIGHTINTERFACE/2.5}px Arial`,"#111", WIDTH/7, HEIGHT+HEIGHTINTERFACE/1.5);
+        this.picture.displayOfInformation(`LENGTH : ${this.length}`,`${HEIGHTINTERFACE/2.5}px Arial`,"#111", 6*WIDTH/10, HEIGHT+HEIGHTINTERFACE/1.5);
+    }
+
     play() {
+        this.clear()
         this.startListener();
         this.interval = setInterval( () => { 
             if (this.serpent.cellsNumber != 0) {
@@ -47,10 +69,14 @@ class scene {
             else {
                 clearInterval(this.interval);
                 this.playingField();
-                this.picture.displayOfInformation("GAME",`${HEIGHT/5}px Arial`,"#222", WIDTH/5, HEIGHT/3);
-                this.picture.displayOfInformation("OVER",`${HEIGHT/5}px Arial`,"#222", WIDTH/5, HEIGHT*2/3);
+                this.displayOfInformationAboutTheLoss();
             } },
-        250);
+        CALLTIME);
+    }
+
+    displayOfInformationAboutTheLoss() {
+        this.picture.displayOfInformation("GAME",`${HEIGHT/5}px Arial`,"#111", WIDTH/5, HEIGHT/3);
+        this.picture.displayOfInformation("OVER",`${HEIGHT/5}px Arial`,"#111", WIDTH/5, HEIGHT*2/3);
     }
 
     startListener() {
@@ -70,10 +96,10 @@ class scene {
     update() {
         this.playingField(); // рисуем игровое поле
         this.serpent.move();
-        this.checkSnake();
-        this.drawSnake(this.serpent);
+        this.drawSnake();
         this.checkFood();
         this.drawFood();
+        this.drawInterface()
     }
 
     playingField() {
@@ -82,9 +108,9 @@ class scene {
     }
 
     drawGrid() {
-        for (let i = 0; i < WIDTH/SIDE+WIDTHLINE; i++) {
-            this.picture.draw("#727573", i*SIDE, 0, WIDTHLINE, HEIGHT)
-            this.picture.draw("#727573", 0, i*SIDE, WIDTH, WIDTHLINE)
+        for (let i = 0; i < WIDTH/SIDE + 1; i++) {
+            this.picture.draw("#727573", i*SIDE, 0, WIDTHLINE, HEIGHT+WIDTHLINE)
+            this.picture.draw("#727573", 0, i*SIDE, WIDTH+WIDTHLINE, WIDTHLINE)
         }
     }
 
@@ -103,12 +129,16 @@ class scene {
         if (this.serpent.getHeadCoordinates().x == this.food.x && this.serpent.getHeadCoordinates().y == this.food.y) {
             this.serpent.hunger = false;
             this.makeFood();
+        } else {
+            this.score = this.score*POINTREDUCTIONFACTOR;
         }
     }
 
     makeFood() {
         this.food = new square("#f00", Math.floor((Math.random() * WIDTH )/SIDE)*SIDE, 
             Math.floor((Math.random() * HEIGHT)/SIDE)*SIDE, SIDE, SIDE)
+        this.totalScore += this.score;
+        this.score = POINT;
     }
     
     drawFood() {
@@ -229,3 +259,7 @@ class snake {
         return true;
     }
 }
+
+let game = new scene();
+game.playingField();
+game.drawInterface();
