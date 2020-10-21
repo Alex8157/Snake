@@ -1,0 +1,25 @@
+.welcome{
+    font-size: 28px;
+    border: 2px solid #cfcfcf;
+    padding: 12px 171px 12px 171px;
+    background-color: #727573;
+    color:#111;
+    text-decoration: none;
+    outline: 2px solid  #727573;
+    position: absolute;
+    top: 682px;
+    left: 10px;
+}
+
+.welcome:hover{
+    font-size: 28px;
+    border: 2px solid #727573;
+    padding: 12px 171px 12px 171px;
+    background-color: #cfcfcf;
+    color:#111;
+    text-decoration: Arial;
+    outline: 2px solid  #cfcfcf;
+    position: absolute;
+    top: 682px;
+    left: 10px;
+}
