@@ -1,7 +1,7 @@
 .welcome{
-    font-size: 28px;
+    font-size: 29px;
     border: 2px solid #cfcfcf;
-    padding: 12px 171px 12px 171px;
+    padding: 12px 166px 12px 166px;
     background-color: #727573;
     color:#111;
     text-decoration: none;
@@ -12,9 +12,9 @@
 }
 
 .welcome:hover{
-    font-size: 28px;
+    font-size: 29px;
     border: 2px solid #727573;
-    padding: 12px 171px 12px 171px;
+    padding: 12px 166px 12px 166px;
     background-color: #cfcfcf;
     color:#111;
     text-decoration: Arial;
