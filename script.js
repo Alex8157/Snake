@@ -55,8 +55,8 @@ class scene {
         this.picture.draw("#cfcfcf", WIDTH-WIDTHLINE, HEIGHT+WIDTHLINE, WIDTHLINE, HEIGHTINTERFACE-WIDTHLINE)
         this.picture.draw("#cfcfcf", WIDTHLINE, HEIGHT+WIDTHLINE, WIDTH-WIDTHLINE, WIDTHLINE)
         this.picture.draw("#cfcfcf", WIDTHLINE, HEIGHT+HEIGHTINTERFACE-WIDTHLINE, WIDTH-WIDTHLINE, WIDTHLINE)
-        this.picture.displayOfInformation(`SCORE : ${Math.round(this.totalScore)}`,`${HEIGHTINTERFACE/2.5}px Arial`,"#111", WIDTH/7, HEIGHT+HEIGHTINTERFACE/1.5);
-        this.picture.displayOfInformation(`LENGTH : ${this.length}`,`${HEIGHTINTERFACE/2.5}px Arial`,"#111", 6*WIDTH/10, HEIGHT+HEIGHTINTERFACE/1.5);
+        this.picture.displayOfInformation(`SCORE : ${Math.round(this.totalScore)}`,`${WIDTH/20}px Arial`,"#111", WIDTH/7, HEIGHT+HEIGHTINTERFACE/1.5);
+        this.picture.displayOfInformation(`LENGTH : ${this.length}`,`${WIDTH/20}px Arial`,"#111", 6*WIDTH/10, HEIGHT+HEIGHTINTERFACE/1.5);
     }
 
     play() {
@@ -137,7 +137,7 @@ class scene {
 
     makeFood() {
         this.makeValidArrayForFood();
-        this.coordinatesFood = this.foodCoordinates[Math.floor(Math.random() * (this.foodCoordinates.length + 1))];
+        this.coordinatesFood = this.foodCoordinates[Math.floor(Math.random() * (this.foodCoordinates.length))];
         this.food = new square("#f00", this.coordinatesFood.x, this.coordinatesFood.y, SIDE, SIDE)
         this.totalScore += this.score;
         this.score = POINT;
