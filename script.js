@@ -96,6 +96,7 @@ class scene {
     update() {
         this.playingField(); // рисуем игровое поле
         this.serpent.move();
+        this.checkSnake();
         this.drawSnake();
         this.checkFood();
         this.drawFood();
@@ -171,6 +172,9 @@ class scene {
                 }else if (this.serpent.getHeadCoordinates().y >= HEIGHT) {
                         this.serpent.cells[0].y = 0;
                     }
+        if (this.serpent.checkIntersection() != true) {
+            this.serpent.delete()
+        }
     }
 }
 
@@ -260,9 +264,6 @@ class snake {
     move() {
         this.moveCounter = 0;
         this.travel();
-        if (this.checkIntersection() != true) {
-            this.delete()
-        }
     }
 
     checkIntersection() {
