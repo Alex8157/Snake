@@ -96,7 +96,6 @@ class scene {
     update() {
         this.playingField(); // рисуем игровое поле
         this.serpent.move();
-        this.checkSnake();
         this.drawSnake();
         this.checkFood();
         this.drawFood();
@@ -136,10 +135,26 @@ class scene {
     }
 
     makeFood() {
-        this.food = new square("#f00", Math.floor((Math.random() * WIDTH )/SIDE)*SIDE, 
-            Math.floor((Math.random() * HEIGHT)/SIDE)*SIDE, SIDE, SIDE)
+        this.makeValidArrayForFood();
+        this.coordinatesFood = this.foodCoordinates[Math.floor(Math.random() * (this.foodCoordinates.length + 1))];
+        this.food = new square("#f00", this.coordinatesFood.x, this.coordinatesFood.y, SIDE, SIDE)
         this.totalScore += this.score;
         this.score = POINT;
+    }
+
+    makeValidArrayForFood() {
+        this.foodCoordinates = [];
+        for (let i = 0; i < WIDTH/SIDE; i++) {
+            for (let l = 0; l < HEIGHT/SIDE; l++) {
+                this.foodCoordinates.push({x:i*SIDE, y:l*SIDE})
+            }
+        }
+        for (let i = 0; i < this.serpent.cellsNumber; i++) {
+            for (let l = 0; l < this.foodCoordinates.length; l++) {
+                if (this.serpent.cells[i].x == this.foodCoordinates[l].x && this.serpent.cells[i].y == this.foodCoordinates[l].y)
+                    this.foodCoordinates.splice(l, 1)
+            }
+        }
     }
     
     drawFood() {
